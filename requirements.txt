@@ -1,0 +1,17 @@
+albumentations
+evaluate
+jiwer
+matplotlib
+numpy
+opencv-python
+pandas
+Pillow
+pyyaml
+scikit-learn
+torch
+torchvision
+tqdm
+transformers
+ultralytics
+datasets
+huggingface_hub
