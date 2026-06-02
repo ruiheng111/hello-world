@@ -14,22 +14,21 @@
 # Kaggle 环境通常已经有 torch/pandas/sklearn。这里升级/安装 OCR 需要的包。
 
 # %%
+import importlib.util
 import subprocess
 import sys
 
-subprocess.check_call([
-    sys.executable,
-    "-m",
-    "pip",
-    "install",
-    "-q",
-    "-U",
-    "transformers",
-    "evaluate",
-    "jiwer",
-    "accelerate",
-    "sentencepiece",
-])
+PACKAGE_IMPORTS = {
+    "transformers": "transformers",
+    "evaluate": "evaluate",
+    "jiwer": "jiwer",
+    "accelerate": "accelerate",
+    "sentencepiece": "sentencepiece",
+}
+missing = [pkg for pkg, import_name in PACKAGE_IMPORTS.items() if importlib.util.find_spec(import_name) is None]
+if missing:
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "-q", *missing])
+print("Package check complete. Missing installed:", missing)
 
 # %% [markdown]
 # ## 2. 导入库和参数

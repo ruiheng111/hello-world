@@ -25,22 +25,21 @@
 # 如果 Kaggle Notebook 没开 Internet，这一步会失败。先在右侧 Settings 打开 Internet。
 
 # %%
+import importlib.util
 import subprocess
 import sys
 
-subprocess.check_call([
-    sys.executable,
-    "-m",
-    "pip",
-    "install",
-    "-q",
-    "-U",
-    "ultralytics",
-    "transformers",
-    "accelerate",
-    "jiwer",
-    "sentencepiece",
-])
+PACKAGE_IMPORTS = {
+    "ultralytics": "ultralytics",
+    "transformers": "transformers",
+    "accelerate": "accelerate",
+    "jiwer": "jiwer",
+    "sentencepiece": "sentencepiece",
+}
+missing = [pkg for pkg, import_name in PACKAGE_IMPORTS.items() if importlib.util.find_spec(import_name) is None]
+if missing:
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "-q", *missing])
+print("Package check complete. Missing installed:", missing)
 
 # %% [markdown]
 # ## 2. 导入库和参数

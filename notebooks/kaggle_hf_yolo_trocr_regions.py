@@ -28,24 +28,25 @@
 # Kaggle 右侧 Settings 里需要打开 Internet。
 
 # %%
+import importlib.util
 import subprocess
 import sys
 
-subprocess.check_call([
-    sys.executable,
-    "-m",
-    "pip",
-    "install",
-    "-q",
-    "-U",
-    "datasets",
-    "huggingface_hub",
-    "ultralytics",
-    "transformers",
-    "accelerate",
-    "jiwer",
-    "sentencepiece",
-])
+# Kaggle already includes many GPU/CUDA packages. Avoid aggressive upgrades because
+# they can create scary but unrelated CUDA/numba dependency conflict messages.
+PACKAGE_IMPORTS = {
+    "datasets": "datasets",
+    "huggingface_hub": "huggingface_hub",
+    "ultralytics": "ultralytics",
+    "transformers": "transformers",
+    "accelerate": "accelerate",
+    "jiwer": "jiwer",
+    "sentencepiece": "sentencepiece",
+}
+missing = [pkg for pkg, import_name in PACKAGE_IMPORTS.items() if importlib.util.find_spec(import_name) is None]
+if missing:
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "-q", *missing])
+print("Package check complete. Missing installed:", missing)
 
 # %% [markdown]
 # ## 2. 导入库和参数
