@@ -13,3 +13,5 @@ torchvision
 tqdm
 transformers
 ultralytics
+datasets
+huggingface_hub

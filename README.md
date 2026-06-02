@@ -3,6 +3,24 @@
 这是一个面向 Kaggle `handwritten-to-data` 比赛的最小可运行 starter。当前仓库没有比赛数据，因此代码采用“尽量自动识别列名 + 配置可覆盖”的方式。
 
 
+
+## Hugging Face data source
+
+The Kaggle competition input may only expose `sample_submission.csv`. The full RUKOPYS dataset is hosted on Hugging Face:
+
+```python
+from datasets import load_dataset
+ds = load_dataset("UkrainianCatholicUniversity/rukopys")
+```
+
+Use this Kaggle Notebook script first:
+
+```text
+notebooks/kaggle_hf_yolo_trocr_regions.py
+```
+
+It loads `train`, optional `silver`, and `test` directly from Hugging Face, trains YOLOv8 for region detection and TrOCR for region transcription, then writes `/kaggle/working/submission.csv`.
+
 ## 当前提交格式：image + regions JSON
 
 用户上传的 `sample_submission.csv` 显示提交列是：
@@ -20,7 +38,7 @@ image,regions
 因此这个比赛不是简单的整图 OCR。优先使用：
 
 ```text
-notebooks/kaggle_yolo_trocr_regions.py
+notebooks/kaggle_hf_yolo_trocr_regions.py
 ```
 
 这个 Kaggle Notebook 版代码采用两阶段方案：

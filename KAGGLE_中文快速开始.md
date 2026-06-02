@@ -2,7 +2,7 @@
 
 你现在最需要看的不是整个工程，而是这三个文件：
 
-1. `notebooks/kaggle_yolo_trocr_regions.py`
+1. `notebooks/kaggle_hf_yolo_trocr_regions.py`
    - 这是目前最重要的高分方向代码。
    - 它适配你上传的提交格式：`image, regions`。
    - `regions` 是 JSON，里面每个框包含 `bbox`、`type`、`text`。
@@ -16,6 +16,24 @@
    - 就是你现在看的这份说明。
 
 其他文件是工程化版本，先不用管。
+
+
+## 重要更新：完整数据在 Hugging Face
+
+比赛 Kaggle Input 里可能只有 `sample_submission.csv`。完整数据在 Hugging Face：
+
+```python
+from datasets import load_dataset
+ds = load_dataset("UkrainianCatholicUniversity/rukopys")
+```
+
+所以你现在应该优先运行：
+
+```text
+notebooks/kaggle_hf_yolo_trocr_regions.py
+```
+
+这个文件会自动从 Hugging Face 下载 `train`、`silver`、`test`。
 
 ## 一、在 Kaggle 网站上怎么操作
 
@@ -62,7 +80,7 @@ Add Input -> Competition Data -> handwritten-to-data
 优先把这个文件里的代码复制到 Kaggle Notebook：
 
 ```text
-notebooks/kaggle_yolo_trocr_regions.py
+notebooks/kaggle_hf_yolo_trocr_regions.py
 ```
 
 建议分成几个代码格：
@@ -93,13 +111,13 @@ src/htd/metrics.py                 # CER/WER 指标
 scripts/00_inspect_data.py         # 本地检查数据
 scripts/05_prepare_yolo_regions.py # 本地把 regions 转成 YOLO 数据集
 notebooks/kaggle_trocr_baseline.py # 简单整图 OCR 版
-notebooks/kaggle_yolo_trocr_regions.py # 高分方向：YOLO + TrOCR 区域版
+notebooks/kaggle_hf_yolo_trocr_regions.py # 高分方向：Hugging Face 数据 + YOLO + TrOCR 区域版
 ```
 
 你现在优先使用：
 
 ```text
-notebooks/kaggle_yolo_trocr_regions.py
+notebooks/kaggle_hf_yolo_trocr_regions.py
 ```
 
 ## 三、你上传的 sample_submission 说明了什么？
