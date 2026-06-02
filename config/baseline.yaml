@@ -1,0 +1,50 @@
+paths:
+  data_dir: data/raw
+  processed_dir: data/processed
+  model_dir: models/trocr-baseline
+  submission_dir: submissions
+  train_csv: train.csv
+  test_csv: test.csv
+  sample_submission_csv: sample_submission.csv
+  train_image_dirs:
+    - train
+    - train_images
+    - images/train
+    - images
+  test_image_dirs:
+    - test
+    - test_images
+    - images/test
+    - images
+
+columns:
+  # Leave null to auto-detect common names.
+  id:
+  image:
+  target:
+
+submission:
+  # Leave null to infer from sample_submission.csv.
+  id:
+  prediction:
+
+validation:
+  n_splits: 5
+  fold: 0
+  seed: 42
+
+model:
+  name: microsoft/trocr-base-handwritten
+  image_size: 384
+  max_target_length: 128
+  max_new_tokens: 128
+
+training:
+  epochs: 3
+  batch_size: 2
+  grad_accum: 8
+  learning_rate: 0.00005
+  weight_decay: 0.01
+  warmup_ratio: 0.05
+  num_workers: 2
+  fp16: true
