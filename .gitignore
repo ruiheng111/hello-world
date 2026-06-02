@@ -7,6 +7,7 @@ __pycache__/
 
 .env
 kaggle.json
+uploaded/
 
 data/raw/*
 !data/raw/.gitkeep

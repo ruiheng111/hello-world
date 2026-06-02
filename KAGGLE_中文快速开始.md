@@ -1,12 +1,18 @@
 # Kaggle 网站训练：中文快速开始
 
-你现在最需要看的不是整个工程，而是这两个文件：
+你现在最需要看的不是整个工程，而是这三个文件：
 
-1. `notebooks/kaggle_trocr_baseline.py`
-   - 这是给 Kaggle Notebook 用的代码。
-   - 打开后，把里面的代码复制到 Kaggle Notebook 的代码格里运行。
+1. `notebooks/kaggle_yolo_trocr_regions.py`
+   - 这是目前最重要的高分方向代码。
+   - 它适配你上传的提交格式：`image, regions`。
+   - `regions` 是 JSON，里面每个框包含 `bbox`、`type`、`text`。
+   - 思路是：YOLO 检测区域 + TrOCR 识别区域文字。
 
-2. `KAGGLE_中文快速开始.md`
+2. `notebooks/kaggle_trocr_baseline.py`
+   - 这是旧的简单 OCR baseline。
+   - 它更适合“整张图片输出一段文字”的比赛，不是这个比赛的最佳方向。
+
+3. `KAGGLE_中文快速开始.md`
    - 就是你现在看的这份说明。
 
 其他文件是工程化版本，先不用管。
@@ -51,12 +57,12 @@ Settings -> Accelerator -> GPU T4 x2 或 GPU P100
 Add Input -> Competition Data -> handwritten-to-data
 ```
 
-### 4. 复制代码
+### 4. 复制高分方向代码
 
-把这个文件里的代码复制到 Kaggle Notebook：
+优先把这个文件里的代码复制到 Kaggle Notebook：
 
 ```text
-notebooks/kaggle_trocr_baseline.py
+notebooks/kaggle_yolo_trocr_regions.py
 ```
 
 建议分成几个代码格：
@@ -64,70 +70,108 @@ notebooks/kaggle_trocr_baseline.py
 1. 安装依赖
 2. 导入库和设置参数
 3. 检查数据
-4. 建训练/验证集
-5. 训练模型
-6. 预测 test
-7. 生成 submission.csv
+4. 解析 `regions`
+5. 训练 YOLO 检测框和类型
+6. 训练 TrOCR 识别每个框里的文字
+7. 对 test 图片检测 + OCR
+8. 生成 `submission.csv`
 
 如果你不想分格，也可以整份复制进去直接跑。
 
 ## 二、代码写在哪里了？
 
-目前我已经写了这些文件：
+目前主要文件是：
 
 ```text
-README.md                         # 工程版完整说明，比较详细
-KAGGLE_中文快速开始.md             # 中文快速说明
-requirements.txt                  # 本地安装依赖
-config/baseline.yaml              # 工程版配置
-src/htd/data.py                   # 数据列名识别、图片路径解析
-src/htd/metrics.py                # CER/WER 指标
-scripts/00_inspect_data.py        # 本地检查数据
-scripts/01_make_folds.py          # 本地生成验证集
-scripts/02_train_trocr.py         # 本地/工程版训练 TrOCR
-scripts/03_predict_trocr.py       # 本地/工程版预测
-scripts/04_make_submission.py     # 本地/工程版生成提交
-notebooks/kaggle_trocr_baseline.py # Kaggle Notebook 直接复制版
+README.md                          # 工程版完整说明
+KAGGLE_中文快速开始.md              # 中文快速说明
+requirements.txt                   # 本地依赖
+config/baseline.yaml               # 工程版配置
+src/htd/data.py                    # 数据列名识别、图片路径解析
+src/htd/regions.py                 # regions JSON 解析和 bbox 工具
+src/htd/metrics.py                 # CER/WER 指标
+scripts/00_inspect_data.py         # 本地检查数据
+scripts/05_prepare_yolo_regions.py # 本地把 regions 转成 YOLO 数据集
+notebooks/kaggle_trocr_baseline.py # 简单整图 OCR 版
+notebooks/kaggle_yolo_trocr_regions.py # 高分方向：YOLO + TrOCR 区域版
 ```
 
 你现在优先使用：
 
 ```text
-notebooks/kaggle_trocr_baseline.py
+notebooks/kaggle_yolo_trocr_regions.py
 ```
 
-## 三、跑完第一步后，把什么发给我？
+## 三、你上传的 sample_submission 说明了什么？
+
+你上传的 `sample_submission.csv` 显示提交格式是：
+
+```text
+image,regions
+```
+
+其中 `regions` 是一个 JSON list，例如：
+
+```json
+[
+  {
+    "bbox": [1213, 350, 2052, 530],
+    "type": "handwritten",
+    "text": "Магія голосу."
+  },
+  {
+    "bbox": [395, 600, 900, 750],
+    "type": "formula",
+    "text": "E = mc^2"
+  }
+]
+```
+
+所以这个比赛不是简单的整图 OCR，而是：
+
+```text
+找出区域 bbox -> 判断区域类型 type -> 识别文字 text
+```
+
+## 四、第一版高分方向是什么？
+
+我给你的新版是：
+
+```text
+YOLOv8 检测 regions + microsoft/trocr-base-handwritten 识别文字
+```
+
+第一版目标是先跑通：
+
+```text
+图片 -> bbox/type -> 裁剪区域 -> text -> regions JSON -> submission.csv
+```
+
+跑通之后，我们再根据分数做增强。
+
+## 五、跑完第一步后，把什么发给我？
 
 请先在 Kaggle Notebook 里运行“检查数据”那一段，然后把输出发给我。
 
 我需要看：
 
-- `train.csv` 的列名
-- `test.csv` 的列名
-- `sample_submission.csv` 的列名
+- `train.csv` 的列名和前几行
+- `test.csv` 的列名和前几行
+- `sample_submission.csv` 的列名和前几行
 - 图片目录长什么样
-- 目标列到底是 `text`、`label`、`transcription` 还是别的
+- `train.csv` 里是否也有 `regions` 列
+- `regions` 里面的 `type` 总共有几类，比如 `handwritten`、`formula`
 
 如果代码报错，也直接把完整报错复制给我。
 
-## 四、第一版 baseline 是什么？
+## 六、重要提醒
 
-我给你的第一版是：
+只给 `sample_submission.csv` 还不能真正训练模型，因为它只告诉我们提交格式，不包含训练标注。
 
-```text
-microsoft/trocr-base-handwritten
-```
+你现在还需要给我：
 
-这是一个手写文字识别模型。第一版目标是先跑通：
+1. `train.csv`
+2. `test.csv`
+3. 或者至少运行 Notebook 前面的“检查数据”部分，把输出复制给我
 
-```text
-图片 -> 文字预测 -> submission.csv -> 提交 Kaggle
-```
-
-跑通之后，我们再根据分数做增强。
-
-## 五、重要提醒
-
-这个比赛可能不是简单 OCR。如果目标是结构化字段、JSON、表格或多字段抽取，那么第一版 TrOCR 只能作为起点。
-
-所以你第一步一定要把数据检查输出发给我，我才能把方案改成真正适配比赛的版本。
+不用上传全部图片到 GitHub。图片很大，而且 Kaggle 数据通常不适合公开提交到仓库。

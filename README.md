@@ -2,6 +2,34 @@
 
 这是一个面向 Kaggle `handwritten-to-data` 比赛的最小可运行 starter。当前仓库没有比赛数据，因此代码采用“尽量自动识别列名 + 配置可覆盖”的方式。
 
+
+## 当前提交格式：image + regions JSON
+
+用户上传的 `sample_submission.csv` 显示提交列是：
+
+```text
+image,regions
+```
+
+`regions` 是 JSON list，每个元素包含：
+
+```json
+{"bbox": [x1, y1, x2, y2], "type": "handwritten", "text": "..."}
+```
+
+因此这个比赛不是简单的整图 OCR。优先使用：
+
+```text
+notebooks/kaggle_yolo_trocr_regions.py
+```
+
+这个 Kaggle Notebook 版代码采用两阶段方案：
+
+1. YOLOv8 检测 region 的 `bbox` 和 `type`
+2. TrOCR 对每个裁剪 region 识别 `text`
+
+旧的 `notebooks/kaggle_trocr_baseline.py` 只适合整图 OCR baseline，不能作为当前格式的主要冲分方案。
+
 目标不是一开始就写复杂方案，而是先建立一条可靠闭环：
 
 1. 下载并检查数据格式
