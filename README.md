@@ -4,6 +4,18 @@
 
 
 
+
+### Avoid downloading silver by default
+
+The Hugging Face notebook intentionally loads split-specific data:
+
+```python
+train_ds = load_dataset(DATASET_ID, split="train")
+test_ds = load_dataset(DATASET_ID, split="test")
+```
+
+Avoid `load_dataset(DATASET_ID)` for Kaggle runs because it can resolve/download the large `silver` split even when silver is not used.
+
 ## Hugging Face data source
 
 The Kaggle competition input may only expose `sample_submission.csv`. The full RUKOPYS dataset is hosted on Hugging Face:

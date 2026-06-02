@@ -35,6 +35,26 @@ notebooks/kaggle_hf_yolo_trocr_regions.py
 
 这个文件会自动从 Hugging Face 下载 `train`、`silver`、`test`。
 
+
+### 如果卡在 silver 下载
+
+新版 `notebooks/kaggle_hf_yolo_trocr_regions.py` 已经改成只加载 `train` 和 `test`。
+
+请确认代码里是这样的：
+
+```python
+train_ds = load_dataset(DATASET_ID, split="train")
+test_ds = load_dataset(DATASET_ID, split="test")
+```
+
+不要用：
+
+```python
+ds = load_dataset(DATASET_ID)
+```
+
+因为那样可能会解析/下载很大的 `silver` split，导致 Kaggle 看起来卡死。
+
 ## 一、在 Kaggle 网站上怎么操作
 
 ### 1. 打开比赛页面

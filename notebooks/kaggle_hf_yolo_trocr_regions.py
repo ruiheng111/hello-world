@@ -122,20 +122,21 @@ if torch.cuda.is_available():
 # ## 3. 从 Hugging Face 加载数据
 
 # %%
-ds = load_dataset(DATASET_ID)
-print(ds)
-print("Splits:", list(ds.keys()))
+# Important: do not call load_dataset(DATASET_ID) here. That can resolve/download
+# all splits, including the large silver split. Load only the splits we need.
+train_ds = load_dataset(DATASET_ID, split="train")
+test_ds = load_dataset(DATASET_ID, split="test")
 
-train_ds = ds["train"]
-if USE_SILVER and "silver" in ds:
-    train_ds = concatenate_datasets([train_ds, ds["silver"]])
-test_ds = ds["test"]
+if USE_SILVER:
+    silver_ds = load_dataset(DATASET_ID, split="silver")
+    train_ds = concatenate_datasets([train_ds, silver_ds])
 
 if MAX_TRAIN_IMAGES is not None:
     train_ds = train_ds.select(range(min(MAX_TRAIN_IMAGES, len(train_ds))))
 if MAX_TEST_IMAGES is not None:
     test_ds = test_ds.select(range(min(MAX_TEST_IMAGES, len(test_ds))))
 
+print("USE_SILVER:", USE_SILVER)
 print("train images:", len(train_ds))
 print("test images:", len(test_ds))
 print("example keys:", train_ds[0].keys())
